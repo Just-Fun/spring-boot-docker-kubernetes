@@ -1,0 +1,21 @@
+GET http://localhost:8081/docker/hello
+
+###
+
+GET http://localhost:8082/docker/hello
+
+###
+
+GET http://localhost:8089/docker/hello
+
+###
+
+GET http://localhost:8888/docker/hello
+
+###
+
+GET http://172.17.0.5:8082/docker/hello
+#GET http://192.168.99.104:31594/docker/hello
+
+
+#kubectl exec s-b-d-59496f49dd-8ngnf -t -- curl -s 127.0.0.1:8082/docker/hello

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment                                          # 1
+metadata:
+  name: s-b-d
+spec:
+  replicas: 2                                             # 2
+#      The selector field defines how the Deployment finds which Pods to manage. In this case, you simply select a label that is defined in the Pod template
+  selector:
+    matchLabels:
+#      app.kubernetes.io/name: s-b-d
+      app: s-b-d
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate                                   # 3
+#    описывает стратегию, используемую в данном развёртывании при переходе с текущей версии на новую.
+#    Стратегия RollingUpdate обеспечивает нулевое время простоя системы при обновлении.
+    rollingUpdate:
+#      свойства объекта RollingUpdate
+      maxUnavailable: 1                                   # 4
+#      задаёт максимальное число недоступных подов (в сравнении с желаемым количеством подов) при выполнении последовательного обновления системы.
+#      В нашем развёртывании, подразумевающем наличие 2 реплик, значение этого свойства указывает на то,
+#      что после завершения работы одного пода ещё один будет выполняться, что делает приложение доступным в ходе обновления.
+      maxSurge: 1                                         # 5
+#      описывает максимальное число подов, которое можно добавить в развёртывание (в сравнении с заданным числом подов).
+#      В нашем случае его значение, 1, означает, что, при переходе на новую версию программы, мы можем добавить в кластер ещё один под,
+#      что приведёт к тому, что у нас могут быть одновременно запущены до трёх подов.
+  template:                                               # 6
+    metadata:
+      labels:
+        app: s-b-d                                  # 7
+#        метка для подов, создаваемых по заданному шаблону.
+    spec:
+      containers:
+        - image: serzhzag/spring-boot-docker:red
+          imagePullPolicy: IfNotPresent
+#          imagePullPolicy: Always                         # 8
+#          определяет порядок работы с образами. В нашем случае это свойство установлено в значение Always, то есть,
+#          в ходе каждого развёртывания соответствующий образ будет загружаться из репозитория.
+          name: s-b-d
+#          env:
+#            - name: SA_LOGIC_API_URL
+#              value: "http://sbd-logic"
+          ports:
+            - containerPort: 8082
+
+#  kubectl apply -f spring-boot-docker-deployment-red.yml --record
